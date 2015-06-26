@@ -1,0 +1,16 @@
+{
+	"name": "rudrax/utils",
+	"type": "library",
+	"description": "Script to deploy Rudrax on FTP server;",
+	"keywords": ["rudra", "API", "controller", "smarty"],
+	"license": "MIT",
+
+	"autoload": {
+		"psr-4": {
+			"RudraX\\Utils\\": ""
+		}
+	},
+	
+	"require-dev": {
+	}
+}
