@@ -18,9 +18,9 @@ namespace RudraX\Utils {
 			self::$BASE_URL = preg_replace ( "!^{self::$DOC_ROOT}!", '', self::$BASE_DIR ); // ex: '' or '/mywebsite'
 			self::$PROTOCOL = empty ( $_SERVER ['HTTPS'] ) ? 'http' : 'https';
 			self::$PORT = $_SERVER ['SERVER_PORT'];
-			self::$DISP_PORT = (self::$PROTOCOL == 'http' && self::$PORT == 80 || self::$PROTOCOL == 'https' && self::$PORT == 443) ? '' : ":".self::$PORT;
+			self::$DISP_PORT = (self::$PROTOCOL == 'http' && self::$PORT == 80 || self::$PROTOCOL == 'https' && self::$PORT == 443) ? '' : ":" . self::$PORT;
 			self::$DOMAIN = $_SERVER ['SERVER_NAME'];
-			self::$FULL_URL = self::$PROTOCOL."://".self::$DOMAIN.self::$DISP_PORT.self::$BASE_URL;
+			self::$FULL_URL = self::$PROTOCOL . "://" . self::$DOMAIN . self::$DISP_PORT . self::$BASE_URL;
 		}
 	}
 	
