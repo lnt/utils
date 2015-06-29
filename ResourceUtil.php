@@ -30,7 +30,6 @@ namespace RudraX\Utils {
 				$target = $file;
 			}
 			global $minifier;
-			Console::log ( "Minifying  " . $file );
 			return $minifier->minify ( self::$PROJECT_ROOT_DIR . $file, self::$PROJECT_ROOT_DIR . self::$BUILD_DIR . self::$RESOURCE_DIST_DIR . "/" . $target );
 		}
 		public static function scan_modules_dir($dir, $filemodules = array("_" => array(),"bundles" => array())) {
@@ -96,6 +95,7 @@ namespace RudraX\Utils {
 			if (self::$webmodules != null && ! empty ( self::$webmodules ['bundles'] )) {
 				foreach ( self::$webmodules ['bundles'] as $module => $moduleObject ) {
 					foreach ( $moduleObject ["files"] as $file ) {
+						//Console::log ( "Minifying  " . $file );
 						self::js_minfiy ( $file );
 					}
 				}

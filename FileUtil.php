@@ -76,7 +76,7 @@ namespace RudraX\Utils {
 		 * @param string $rights        	
 		 * @return boolean
 		 */
-		public static function build_mkdir($dir, $rights = 0755) {
+		public static function build_mkdir($dir, $rights = 0777) {
 			if (! is_dir ( self::$PROJECT_ROOT_DIR . self::$BUILD_DIR . $dir )) {
 				return self::mkdir ( self::$PROJECT_ROOT_DIR . self::$BUILD_DIR, $dir, $rights );
 			}
@@ -92,7 +92,18 @@ namespace RudraX\Utils {
 		public static function build_read($file = "") {
 			return readfile ( self::$PROJECT_ROOT_DIR . self::$BUILD_DIR . $file );
 		}
-		public static function build_write($filepath, $content) {
+		public static function build_copy($src = "",$target=null) {
+			if($target==null){
+				$target = $src;
+			}
+			$newTarget = self::$PROJECT_ROOT_DIR .self::$BUILD_DIR.$target;
+			//echo $src."-to-".$newTarget;
+			self::check_dir($newTarget);
+			if(file_exists(self::$PROJECT_ROOT_DIR.$src)){
+				return copy(self::$PROJECT_ROOT_DIR.$src, $newTarget);
+			}
+		}
+		public static function check_dir ($filepath){
 			try {
 				$isInFolder = preg_match ( "/^(.*)\/([^\/]+)$/", $filepath, $filepathMatches );
 				if ($isInFolder) {
@@ -103,6 +114,9 @@ namespace RudraX\Utils {
 			} catch ( Exception $e ) {
 				echo "ERR: error writing  to '$filepath', " . $e->getMessage ();
 			}
+		}
+		public static function build_write($filepath, $content) {
+			self::check_dir($filepath);
 			return file_put_contents ( self::$PROJECT_ROOT_DIR . self::$BUILD_DIR . $filepath, $content );
 		}
 		public static function build_check() {
