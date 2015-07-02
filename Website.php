@@ -13,7 +13,7 @@ namespace RudraX\Utils {
 		public static $DOMAIN;
 		public static $FULL_URL; // Ex: 'http://example.com', 'https://example.com/mywebsite', etc.
 		public static function init() {
-			self::$BASE_DIR = __DIR__; // Absolute path to your installation, ex: /var/www/mywebsite
+			self::$BASE_DIR = $base_dir  = str_replace("\\","/",__DIR__);; // Absolute path to your installation, ex: /var/www/mywebsite
 			self::$DOC_ROOT = preg_replace ( "!{$_SERVER['SCRIPT_NAME']}$!", '', $_SERVER ['SCRIPT_FILENAME'] ); // ex: /var/www
 			self::$BASE_URL = preg_replace ( "!^{self::$DOC_ROOT}!", '', self::$BASE_DIR ); // ex: '' or '/mywebsite'
 			self::$PROTOCOL = empty ( $_SERVER ['HTTPS'] ) ? 'http' : 'https';
