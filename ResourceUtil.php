@@ -25,9 +25,19 @@ namespace RudraX\Utils {
 		public static $RESOURCE_DIST_DIR = "dist";
 		public static $RESOURCE_SRC_DIR = "src";
 		private static $webmodules = null;
+		
+		public static function setMinfierConfig($config){
+			global $minifier;
+			global $defaultMinConfig;
+			$minifier = new \MagicMin\MagicMinifier ( array_merge ( $defaultMinConfig, $minConfig ) );
+		}
+		
 		public static function js_minfiy($file, $target = null, $version = "") {
 			if ($target == null) {
 				$target = $file;
+			}
+			if(FileUtil::is_remote_file($file)){
+				return $file;
 			}
 			global $minifier;
 			return $minifier->minify ( self::$PROJECT_ROOT_DIR . $file, self::$PROJECT_ROOT_DIR . self::$BUILD_DIR . self::$RESOURCE_DIST_DIR . "/" . $target );
@@ -87,10 +97,7 @@ namespace RudraX\Utils {
 			return self::$webmodules;
 		}
 		public static function build_js($minConfig = array()) {
-			global $minifier;
-			global $defaultMinConfig;
-			
-			$minifier = new \MagicMin\MagicMinifier ( array_merge ( $defaultMinConfig, $minConfig ) );
+			self::setMinfierConfig($minConfig);
 			
 			if (self::$webmodules != null && ! empty ( self::$webmodules ['bundles'] )) {
 				foreach ( self::$webmodules ['bundles'] as $module => $moduleObject ) {
