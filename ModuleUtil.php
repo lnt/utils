@@ -78,18 +78,26 @@ namespace RudraX\Utils {
 			}
 			self::write_resource_json();
 		}
-		private static function getAllFiles($bundleName,$files=array(),&$scannedBundles =array(),&$scannedFiles=array()) {
+		
+		private static $scanned_files = array();
+		private static $scanned_bundles = array();
+		
+		private static function getAllFiles($bundleName,&$files=array(),&$bundles =array()) {
 			if (self::$webmodules != null && ! empty ( self::$webmodules ['bundles'] )  && isset(self::$webmodules ['bundles'][$bundleName])) {
-				$scannedBundles[$bundleName] = true;
+				$bundles[$bundleName] = true;
+				self::$scanned_bundles[$bundleName] = true;
 				if(isset(self::$webmodules ['bundles'][$bundleName]["on"])){
 					foreach (self::$webmodules ['bundles'][$bundleName]["on"] as $index=>$otherBundleName){
-						$files = self::getAllFiles($otherBundleName,$files,$scannedBundles);
+						if(!isset(self::$scanned_bundles[$otherBundleName])){
+							$files = self::getAllFiles($otherBundleName,$files,$bundles);
+						}
 					}
 				}
 				if(isset(self::$webmodules ['bundles'][$bundleName]["js"])){
 					foreach (self::$webmodules ['bundles'][$bundleName]["js"] as $index=>$fileName){
-						if(!isset($files[$fileName]) && !isset($scannedFiles[$fileName])){
+						if(!isset($files[$fileName]) && !isset(self::$scanned_files[$fileName])){
 							$files[$fileName] = true;
+							self::$scanned_files[$fileName] = true;
 						}
 					}
 				}
@@ -97,29 +105,22 @@ namespace RudraX\Utils {
 			return $files;
 		}
 		
-		private static function finalize($indexBundle,$indexBundleCounter,$scannedBundles,$fileContent){
-			$bundledFileName =  "resources/bundled/" . implode(".", explode("/",  $indexBundle)).
-			($indexBundleCounter==0 ? "" : ("-".$indexBundleCounter))
-			.".js";
-			$fileContent.=";\n(function(foo,bundles){foo.__bundled__ = foo.__bundled__ ? foo.__bundled__.concat(bundles) : bundles;})(this,"
-					.json_encode(array_keys($scannedBundles),JSON_UNESCAPED_SLASHES)
-					.");";
-			
-			FileUtil::build_write ( self::$RESOURCE_DIST_DIR . "/" . $bundledFileName,$fileContent);
-			return $bundledFileName;
-		}
-		
 		public static function bundlify($indexBundles = array("webmodules/bootloader")) {
-			$scannedFiles = array();
+			self::$scanned_files = array();
+			self::$scanned_bundles = array();
 			Console::log("Robo Task Bundlifying...");
+			$indexBundles = array_unique($indexBundles);
+			
 			foreach ($indexBundles as $indexb=>$indexBundle){
-				$files = array(); $scannedBundles =array();
-				$files = self::getAllFiles($indexBundle,$files,$scannedBundles,$scannedFiles);
+				$files = array(); $bundles =array();
+				$files = self::getAllFiles($indexBundle,$files,$bundles);
 				Console::log("Bundlifying : ".$indexBundle);
 				$fileContent = "";
 				Console::log("Reading and Minifying file for bundle :".$indexBundle);
 				$indexBundleCounter = 0;
-				self::$webmodules ['bundles'][$indexBundle]["bundled"] = array();
+				if(empty(self::$webmodules ['bundles'][$indexBundle]["bundled"])){
+					self::$webmodules ['bundles'][$indexBundle]["bundled"] = array();
+				}
 				foreach ($files as $index=>$file){
 					Console::log("File : ".$index);
 					if(!FileUtil::is_remote_file($index)){
@@ -127,21 +128,37 @@ namespace RudraX\Utils {
 						$fileContent= $fileContent.";\n\n".file_get_contents($newFile);
 						unlink($newFile);
 					} else {
-						$bundledFileName=self::finalize($indexBundle, $indexBundleCounter,$scannedBundles,$fileContent);
-						self::$webmodules ['bundles'][$indexBundle]["bundled"][] = $bundledFileName;
+						$bundledFileName=self::finalize($indexBundle, $indexBundleCounter,$bundles,$fileContent);
+						//self::$webmodules ['bundles'][$indexBundle]["bundled"][] = $bundledFileName;
 						self::$webmodules ['bundles'][$indexBundle]["bundled"][] = $index;
 						$indexBundleCounter++;
 						$fileContent = "";
 					}
 				}
-				
-				$bundledFileName = self::finalize($indexBundle, $indexBundleCounter, $scannedBundles,$fileContent);
-				self::$webmodules ['bundles'][$indexBundle]["bundled"][] = $bundledFileName;
+				$bundledFileName = self::finalize($indexBundle, $indexBundleCounter, $bundles,$fileContent);
+				//self::$webmodules ['bundles'][$indexBundle]["bundled"][] = $bundledFileName;
 				
 				//$scannedFiles = array_merge($files);
 			}
 			self::write_resource_json();
 		}
+		
+		private static function finalize($indexBundle,$indexBundleCounter,$scannedBundles,$fileContent){
+			$bundledFileName =  "resources/bundled/" . implode(".", explode("/",  $indexBundle)).
+			($indexBundleCounter==0 ? "" : ("-".$indexBundleCounter))
+			.".js";
+			$scannedBundlesArray = array_keys($scannedBundles);
+			$fileContent.=";\n(function(foo,bundles){foo.__bundled__ = foo.__bundled__ ? foo.__bundled__.concat(bundles) : bundles;})(this,"
+					.json_encode($scannedBundlesArray,JSON_UNESCAPED_SLASHES)
+					.");";
+				
+			FileUtil::build_write ( self::$RESOURCE_DIST_DIR . "/" . $bundledFileName,$fileContent);
+			foreach ($scannedBundlesArray as $bundledName){
+				self::$webmodules ['bundles'][$bundledName]["bundled"][] = $bundledFileName;
+			}
+			return $bundledFileName;
+		}
+		
 		public static function build_js($minConfig = array()) {
 			
 			self::setMinfierConfig ( $minConfig );
