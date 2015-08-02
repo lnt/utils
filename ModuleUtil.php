@@ -37,15 +37,19 @@ namespace RudraX\Utils {
 											$filemodules ['bundles'] [$mod] ["on"] = $files ["on"];
 										}
 										
-										if (isset ( $files ["js"] )) {
-											$jsFiles = $files ["js"];
-											foreach ( $jsFiles as $key => $file ) {
-												if (! FileUtil::is_remote_file ( $file )) {
-													$file_path = FileUtil::resolve_path ( StringUtil::replace_first ( self::$PROJECT_ROOT_DIR, "", $dir . '/' . $file ) );
-													$filemodules ['bundles'] [$mod] ["js"] [] = $file_path;
-												} else
-													$filemodules ['bundles'] [$mod] ["js"] [] = $file;
-											}
+										$keysToScan = array("js","css");
+										
+										foreach ($keysToScan as $key2Scan){
+											if (isset ( $files [$key2Scan] )) {
+												$jsFiles = $files [$key2Scan];
+												foreach ( $jsFiles as $key => $file ) {
+													if (! FileUtil::is_remote_file ( $file )) {
+														$file_path = FileUtil::resolve_path ( StringUtil::replace_first ( self::$PROJECT_ROOT_DIR, "", $dir . '/' . $file ) );
+														$filemodules ['bundles'] [$mod] [$key2Scan] [] = $file_path;
+													} else
+														$filemodules ['bundles'] [$mod] [$key2Scan] [] = $file;
+												}
+											}	
 										}
 									}
 								}
