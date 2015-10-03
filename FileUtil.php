@@ -6,6 +6,10 @@ namespace RudraX\Utils {
 		public static $PROJECT_ROOT_DIR = "";
 		public static $BUILD_DIR = "build/";
 		
+		public static function uniform_path($str){
+			return str_replace(array('/','\\'), DIRECTORY_SEPARATOR, $str);
+		}
+
 		/**
 		 *
 		 * @param string $file_name        	
@@ -27,24 +31,24 @@ namespace RudraX\Utils {
 				switch ($dir) {
 					case '.' :
 						// Don't need to do anything here
-						break;
+					break;
 					case '..' :
-						$popped = array_pop ( $parents );
-						if (empty ( $popped )) {
+					$popped = array_pop ( $parents );
+					if (empty ( $popped )) {
 							// Its meaningful, cant afford to loose it
-							$parents [] = $dir;
-						} else if ($popped == "..") {
+						$parents [] = $dir;
+					} else if ($popped == "..") {
 							// Sorry, will have to put it back
-							$parents [] = $popped;
-							$parents [] = $dir;
-						}
-						break;
+						$parents [] = $popped;
+						$parents [] = $dir;
+					}
+					break;
 					case "" :
 						// Some stupid guy didn't do his job :P
-						break;
+					break;
 					default :
-						$parents [] = $dir;
-						break;
+					$parents [] = $dir;
+					break;
 				}
 			}
 			return $domain . '/' . implode ( '/', $parents );
@@ -61,7 +65,7 @@ namespace RudraX\Utils {
 			$dirs = explode ( '/', $dirName );
 			$dir = $root;
 			foreach ( $dirs as $part ) {
-				$dir .= $part . '/';
+				$dir .= $part . DIRECTORY_SEPARATOR;
 				if (! is_dir ( $dir ) && strlen ( $dir ) > 0) {
 					if (! mkdir ( $dir, $rights )) {
 						return false;
@@ -158,7 +162,7 @@ namespace RudraX\Utils {
 								$content .= $key2 . "[] = " . $elem2 [$i] . "\n";
 							}
 						} else if ($elem2 == "")
-							$content .= $key2 . " = \n";
+						$content .= $key2 . " = \n";
 						else
 							$content .= $key2 . " = " . $elem2 . "\n";
 					}
@@ -170,7 +174,7 @@ namespace RudraX\Utils {
 							$content .= $key . "[] = \"" . $elem [$i] . "\"\n";
 						}
 					} else if ($elem == "")
-						$content .= $key . " = \n";
+					$content .= $key . " = \n";
 					else
 						$content .= $key . " = \"" . $elem . "\"\n";
 				}
