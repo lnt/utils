@@ -20,6 +20,7 @@ namespace RudraX\Utils {
         public static $DOMAIN;
         public static $FULL_URL; // Ex: 'http://example.com', 'https://example.com/mywebsite', etc.
         public static $SUBDOMAIN;
+        public static $REMOTE_HOST;
 
         public static function init()
         {
@@ -38,6 +39,14 @@ namespace RudraX\Utils {
 
             $subdomains = explode(".", $_SERVER['HTTP_HOST']);
             self::$SUBDOMAIN = array_shift($subdomains);
+
+            if (array_key_exists('REQUEST_SCHEME', $_SERVER)) {
+                self::$REMOTE_HOST = $_SERVER["REQUEST_SCHEME"] . "://" . $_SERVER["SERVER_NAME"] .
+                    dirname($_SERVER["SCRIPT_NAME"]);
+            } else {
+                self::$REMOTE_HOST = "http://" . $_SERVER["HTTP_HOST"];
+            }
+            self::$REMOTE_HOST = str_replace('\\',"/",self::$REMOTE_HOST);
         }
     }
 
