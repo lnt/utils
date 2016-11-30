@@ -25,6 +25,7 @@ namespace RudraX\Utils {
         public static $REQUEST_FILENAME;
         public static $REQUEST_DIRNAME;
         public static $REQUEST_QUERY;
+        public static $REQUEST_FILE_EXT;
 
         public static function init()
         {
@@ -57,10 +58,13 @@ namespace RudraX\Utils {
 
             //print_r($pathinfo);
             //print_r($parsedInfo);
+            
             self::$REQUEST_PATHNAME = $parsedInfo['path'];
             self::$REQUEST_DIRNAME = $pathinfo['dirname'];
-            self::$REQUEST_QUERY= $parsedInfo['query'];
+            self::$REQUEST_QUERY= isset($parsedInfo['query']) ? $parsedInfo['query'] : "";
+            self::$REQUEST_FILE_EXT= isset($pathinfo['extension']) ? $pathinfo['extension'] : "";
             self::$REQUEST_FILENAME = str_replace("?".self::$REQUEST_QUERY,"",$pathinfo['basename']);
+            self::$REQUEST_FILE_EXT = str_replace("?".self::$REQUEST_QUERY,"",self::$REQUEST_FILE_EXT);
         }
     }
 
