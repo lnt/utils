@@ -21,6 +21,10 @@ namespace RudraX\Utils {
         public static $FULL_URL; // Ex: 'http://example.com', 'https://example.com/mywebsite', etc.
         public static $SUBDOMAIN;
         public static $REMOTE_HOST;
+        public static $REQUEST_PATHNAME;
+        public static $REQUEST_FILENAME;
+        public static $REQUEST_DIRNAME;
+        public static $REQUEST_QUERY;
 
         public static function init()
         {
@@ -47,6 +51,16 @@ namespace RudraX\Utils {
                 self::$REMOTE_HOST = "http://" . $_SERVER["HTTP_HOST"];
             }
             self::$REMOTE_HOST = str_replace('\\',"/",self::$REMOTE_HOST);
+
+            $pathinfo = pathinfo($_SERVER ["REQUEST_URI"]);
+            $parsedInfo = parse_url($_SERVER ["REQUEST_URI"]);
+
+            //print_r($pathinfo);
+            //print_r($parsedInfo);
+            self::$REQUEST_PATHNAME = $parsedInfo['path'];
+            self::$REQUEST_DIRNAME = $pathinfo['dirname'];
+            self::$REQUEST_QUERY= $parsedInfo['query'];
+            self::$REQUEST_FILENAME = str_replace("?".self::$REQUEST_QUERY,"",$pathinfo['basename']);
         }
     }
 
